@@ -11,9 +11,14 @@ public class SketchBook : MonoBehaviour, IPointerDownHandler, IDragHandler, IPoi
 
     public void OnPointerDown(PointerEventData eventData)
     {
+ 
         points.Clear();
         beforPoint = Vector2.zero;
-        CreateLine();
+        if (!Dyestuffs.Instance.Drawing(0))
+        {
+            return;
+        }
+        CreateLine(Dyestuffs.Instance.CurDystuff);
         AddPoint(eventData.position);
     }
 
@@ -31,7 +36,9 @@ public class SketchBook : MonoBehaviour, IPointerDownHandler, IDragHandler, IPoi
         }
 
         if (!Dyestuffs.Instance.Drawing(dist))
-        {
+        {  
+            CreateCollider();
+            OnPointerDown(eventData);
             return;
         }
         AddPoint(eventData.position);
@@ -42,12 +49,16 @@ public class SketchBook : MonoBehaviour, IPointerDownHandler, IDragHandler, IPoi
 
     public void OnPointerUp(PointerEventData eventData)
     {
+        if (!Dyestuffs.Instance.Drawing(0))
+        {
+            return;
+        }
         AddPoint(eventData.position);
         UpdateLine();
         CreateCollider();
     }
 
-    private void CreateLine()
+    private void CreateLine(Dyestuff dyestuff)
     {
         GameObject lineObject = new GameObject("LineObject");
         lineObject.transform.SetParent(transform);
@@ -57,10 +68,14 @@ public class SketchBook : MonoBehaviour, IPointerDownHandler, IDragHandler, IPoi
         lineRenderer.startWidth = 0.1f;
         lineRenderer.endWidth = 0.1f;
         lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+
+
+        lineRenderer.useWorldSpace = false; 
+        lineRenderer.sortingOrder = 10;
+
+
         lineRenderer.startColor = Color.black;
         lineRenderer.endColor = Color.black;
-        lineRenderer.useWorldSpace = false; 
-        lineRenderer.sortingOrder = 10; 
 
         GameObject collider = new GameObject();
         collider.transform.SetParent(lineObject.transform);
@@ -68,6 +83,8 @@ public class SketchBook : MonoBehaviour, IPointerDownHandler, IDragHandler, IPoi
         edgeCollider = collider.AddComponent<EdgeCollider2D>();
         edgeCollider.edgeRadius = 0.05f;
         collider.transform.localScale = Vector3.one / lineObject.transform.localScale.x;
+        dyestuff.Create(lineRenderer,edgeCollider);
+  
     }
 
     private void AddPoint(Vector2 point)

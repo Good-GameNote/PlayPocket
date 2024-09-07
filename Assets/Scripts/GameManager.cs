@@ -9,7 +9,10 @@ public class GameManager : Singleton<GameManager>
     public int DifficultyLevel { get; private set; }
     public bool IsBot { get; private set; }
 
-
+    private void Awake()
+    {
+        DontDestroyOnLoad(this);
+    }
     public void GotoGame(MiniGame minigame,int difficultyLevel,  bool isBot)
     {
         Minigame = minigame;

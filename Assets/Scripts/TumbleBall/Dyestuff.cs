@@ -1,12 +1,9 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using Unity.VisualScripting;
+
 using UnityEngine;
 
 using UnityEngine.UI;
 
-public class Dyestuff : MonoBehaviour
+public abstract class Dyestuff : MonoBehaviour
 {
     public enum EType
     {
@@ -16,37 +13,18 @@ public class Dyestuff : MonoBehaviour
         blue,
     }
     [SerializeField] Slider slider;
-    float originGage;
     float gage;
+    [SerializeField] protected PhysicsMaterial2D material;
+    public abstract void Create(LineRenderer lr, EdgeCollider2D ec);
 
+    public abstract void SetColor(Image img);
 
-
-    public void Setting(EType _color, float _gage)
+    public void Charge(float _gage)
     {
+        gage=  _gage;
+        slider.value = gage / 500;
         Image fillImage = slider.fillRect.GetComponent<Image>();
-        switch (_color)
-        {
-            case EType.gray:
-                fillImage.color = Color.gray;
-                
-                break;
-            case EType.red:
-
-                fillImage.color = Color.red;
-                break;
-            case EType.green:
-
-                fillImage.color = Color.green;
-                break;
-            case EType.blue:
-
-                fillImage.color = Color.blue;
-                break;
-        }
-
-
-        gage= originGage = _gage;
-
+        SetColor(fillImage);
     }
     public bool Drawing(float distance)
     {
@@ -61,7 +39,7 @@ public class Dyestuff : MonoBehaviour
         {
             gage-=distance;
         }
-        slider.value = gage / originGage;
+        slider.value = gage / 500;
 
 
         return true;
@@ -72,7 +50,7 @@ public class Dyestuff : MonoBehaviour
 
     private void Start()
     {
-        selectButton.onClick.AddListener(() => { Dyestuffs.Instance.Sellect(transform.GetSiblingIndex()); });
+        selectButton.onClick.AddListener(() => { Dyestuffs.Instance.Sellect(this); });
     }
 
 }
